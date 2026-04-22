@@ -1,4 +1,5 @@
 import os
+import time
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import OllamaEmbeddings
 from langchain_core.documents import Document
@@ -11,7 +12,6 @@ def initialize_schema_rag(model_name="llama3"):
     Veritabanı şemasını çeker, tablo tablo ayırır ve ChromaDB'ye vektör olarak gömer.
     Çok tablolu büyük veritabanlarında RAG yapmak için bu yöntem en iyisidir.
     """
-    import time
     
     # Windows'ta Chroma dosya kilitlenmelerini (WinError 32) önlemek için her yüklemede yeni klasör
     CHROMA_DIR = f"./chroma_schema_db_{int(time.time())}"
