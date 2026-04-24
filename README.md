@@ -808,12 +808,6 @@ FastAPI'nin otomatik Swagger arayüzünden tüm endpoint'leri interaktif olarak 
 
 ---
 
-## 📄 Lisans
-
-Bu proje **MIT Lisansı** altındadır. Ticari veya kişisel projelerinizde serbestçe kullanabilir, değiştirebilir ve dağıtabilirsiniz.
-
----
-
 <div align="center">
 
 **⭐ Projeyi beğendiyseniz yıldız vermeyi unutmayın!**
