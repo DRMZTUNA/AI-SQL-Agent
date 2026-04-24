@@ -20,12 +20,7 @@
             --text-muted: #8b92a5;
         }
 
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-            font-family: 'Outfit', sans-serif;
-        }
+        * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Outfit', sans-serif; }
 
         body {
             background-color: var(--bg-color);
@@ -37,7 +32,7 @@
             overflow: hidden;
         }
 
-        /* Sidebar Schema Explorer */
+        /* Sidebar */
         .sidebar {
             width: 300px;
             background: var(--panel-bg);
@@ -51,40 +46,13 @@
             overflow-y: auto;
             transition: width 0.4s cubic-bezier(0.25, 1, 0.5, 1), padding 0.4s ease, opacity 0.4s ease;
         }
+        .sidebar.collapsed { width: 0; padding-left: 0; padding-right: 0; opacity: 0; border-right: none; }
+        .sidebar h2 { font-size: 1.5rem; color: var(--accent-color); border-bottom: 1px solid rgba(255, 255, 255, 0.1); padding-bottom: 0.5rem; }
 
-        .sidebar.collapsed {
-            width: 0;
-            padding-left: 0;
-            padding-right: 0;
-            opacity: 0;
-            border-right: none;
-        }
+        .schema-tree { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: #d2a8ff; line-height: 1.6; white-space: pre-wrap; }
 
-        .sidebar h2 {
-            font-size: 1.5rem;
-            color: var(--accent-color);
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-            padding-bottom: 0.5rem;
-        }
-
-        .schema-tree {
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            color: #d2a8ff;
-            line-height: 1.6;
-            white-space: pre-wrap;
-        }
-
-        /* Main Setup */
-        .main-wrapper {
-            flex: 1;
-            display: flex;
-            flex-direction: column;
-            position: relative;
-            z-index: 10;
-            overflow: hidden;
-            /* Bu ayar ekrandan taşmayı kökten engeller */
-        }
+        /* Main */
+        .main-wrapper { flex: 1; display: flex; flex-direction: column; position: relative; z-index: 10; overflow: hidden; }
 
         header {
             padding: 1rem 1.5rem;
@@ -95,6 +63,8 @@
             background: rgba(15, 17, 21, 0.8);
             backdrop-filter: blur(10px);
             z-index: 15;
+            flex-wrap: wrap;
+            gap: 0.5rem;
         }
 
         h1 {
@@ -106,6 +76,34 @@
             margin-bottom: 0.2rem;
         }
 
+        .header-controls { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
+
+        /* Status dot */
+        .status-dot {
+            width: 10px; height: 10px;
+            border-radius: 50%;
+            background: #444;
+            display: inline-block;
+            transition: background 0.3s;
+            flex-shrink: 0;
+        }
+        .status-dot.ok { background: #22c55e; box-shadow: 0 0 6px #22c55e; }
+        .status-dot.err { background: #ef4444; box-shadow: 0 0 6px #ef4444; }
+
+        /* Model selector */
+        .model-select {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            color: var(--text-main);
+            padding: 6px 10px;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            cursor: pointer;
+            outline: none;
+            transition: border-color 0.2s;
+        }
+        .model-select:focus { border-color: var(--accent-color); }
+
         .upload-btn {
             background: rgba(255, 255, 255, 0.05);
             border: 1px solid rgba(255, 255, 255, 0.2);
@@ -115,297 +113,99 @@
             cursor: pointer;
             transition: all 0.3s;
             font-weight: 600;
+            font-size: 0.85rem;
         }
+        .upload-btn:hover { background: rgba(0, 240, 255, 0.2); border-color: var(--accent-color); }
 
-        .upload-btn:hover {
-            background: rgba(0, 240, 255, 0.2);
-            border-color: var(--accent-color);
-        }
+        /* Chat */
+        .chat-feed { flex: 1; overflow-y: auto; padding: 1.5rem; display: flex; flex-direction: column; gap: 1.5rem; }
 
-        /* Chat History */
-        .chat-feed {
-            flex: 1;
-            overflow-y: auto;
-            padding: 1.5rem;
-            display: flex;
-            flex-direction: column;
-            gap: 1.5rem;
-        }
+        .bubble { max-width: 95%; padding: 1.2rem; border-radius: 12px; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2); animation: fadeIn 0.4s ease; }
+        .user-bubble { align-self: flex-end; background: linear-gradient(135deg, rgba(112, 0, 255, 0.4), rgba(0, 240, 255, 0.2)); border-bottom-right-radius: 4px; border: 1px solid rgba(0, 240, 255, 0.3); font-size: 1.1rem; }
+        .ai-bubble { align-self: flex-start; background: var(--panel-bg); border-bottom-left-radius: 4px; border: 1px solid rgba(255, 255, 255, 0.05); width: 100%; }
 
-        .bubble {
-            max-width: 95%;
-            padding: 1.2rem;
-            border-radius: 12px;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 0.4s ease;
-        }
-
-        .user-bubble {
-            align-self: flex-end;
-            background: linear-gradient(135deg, rgba(112, 0, 255, 0.4), rgba(0, 240, 255, 0.2));
-            border-bottom-right-radius: 4px;
-            border: 1px solid rgba(0, 240, 255, 0.3);
-            font-size: 1.1rem;
-        }
-
-        .ai-bubble {
-            align-self: flex-start;
-            background: var(--panel-bg);
-            border-bottom-left-radius: 4px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            width: 100%;
-        }
-
-        /* Input Area */
-        .input-area {
-            padding: 1.2rem 1.5rem;
-            background: rgba(15, 17, 21, 0.9);
-            border-top: 1px solid rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(10px);
-        }
-
-        .glass-panel {
-            padding: 1rem;
-            border-radius: 12px;
-            background: rgba(0, 0, 0, 0.4);
-            border: 1px solid rgba(255, 255, 255, 0.05);
-        }
+        /* Input */
+        .input-area { padding: 1.2rem 1.5rem; background: rgba(15, 17, 21, 0.9); border-top: 1px solid rgba(255, 255, 255, 0.05); backdrop-filter: blur(10px); }
+        .glass-panel { padding: 1rem; border-radius: 12px; background: rgba(0, 0, 0, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); }
 
         textarea {
-            width: 100%;
-            height: 50px;
+            width: 100%; height: 50px;
             background: rgba(0, 0, 0, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: white;
-            padding: 1rem;
-            font-size: 1rem;
-            resize: none;
-            outline: none;
-            margin-bottom: 1rem;
+            border-radius: 8px; color: white;
+            padding: 1rem; font-size: 1rem; resize: none; outline: none; margin-bottom: 1rem;
         }
-
-        textarea:focus {
-            border-color: var(--accent-color);
-        }
+        textarea:focus { border-color: var(--accent-color); }
 
         .btn-generate {
             background: linear-gradient(135deg, var(--accent-color), #00a2ff);
-            color: #000;
-            border: none;
-            border-radius: 8px;
-            padding: 0.8rem 2rem;
-            font-weight: bold;
-            cursor: pointer;
-            float: right;
-            display: flex;
-            align-items: center;
+            color: #000; border: none; border-radius: 8px;
+            padding: 0.8rem 2rem; font-weight: bold; cursor: pointer;
+            float: right; display: flex; align-items: center;
         }
 
-        /* Code & Tables (Reused from older setup) */
-        pre {
-            background: rgba(0, 0, 0, 0.5);
-            padding: 1rem;
-            border-radius: 8px;
-            overflow-x: auto;
-            color: #e2e8f0;
-            font-family: 'Fira Code', monospace;
-        }
+        pre { background: rgba(0, 0, 0, 0.5); padding: 1rem; border-radius: 8px; overflow-x: auto; color: #e2e8f0; font-family: 'Fira Code', monospace; }
 
-        table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 1rem;
-            font-size: 0.85rem;
-        }
+        table { width: 100%; border-collapse: collapse; margin-top: 1rem; font-size: 0.85rem; }
+        th, td { padding: 8px; text-align: left; border-bottom: 1px solid rgba(255, 255, 255, 0.1); }
+        th { color: var(--accent-color); }
 
-        th,
-        td {
-            padding: 8px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        /* Pagination */
+        .pagination-controls {
+            display: flex; align-items: center; justify-content: space-between;
+            margin-top: 0.8rem; font-size: 0.8rem; color: var(--text-muted);
         }
-
-        th {
+        .btn-page {
+            background: rgba(0, 240, 255, 0.1);
+            border: 1px solid rgba(0, 240, 255, 0.3);
             color: var(--accent-color);
+            padding: 4px 12px; border-radius: 6px; cursor: pointer;
+            font-size: 0.78rem; font-weight: 600; transition: all 0.2s;
         }
+        .btn-page:hover { background: rgba(0, 240, 255, 0.25); }
+        .btn-page:disabled { opacity: 0.3; cursor: default; }
 
-        .loader {
-            display: none;
-            width: 15px;
-            height: 15px;
-            border: 2px solid rgba(0, 0, 0, 0.5);
-            border-top-color: #000;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-left: 8px;
-        }
+        .loader { display: none; width: 15px; height: 15px; border: 2px solid rgba(0, 0, 0, 0.5); border-top-color: #000; border-radius: 50%; animation: spin 1s linear infinite; margin-left: 8px; }
 
-        @keyframes spin {
-            100% {
-                transform: rotate(360deg);
-            }
-        }
+        @keyframes spin { 100% { transform: rotate(360deg); } }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes slideUpFade { 0% { opacity: 0; transform: translateY(30px); } 100% { opacity: 1; transform: translateY(0); } }
 
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
+        .staggered { opacity: 0; animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+        .delay-1 { animation-delay: 0.2s; }
+        .delay-2 { animation-delay: 0.4s; }
+        .delay-3 { animation-delay: 0.6s; }
 
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
+        /* SQL syntax */
+        .keyword { color: #ff7b72; font-weight: bold; }
+        .function { color: #d2a8ff; }
+        .string { color: #a5d6ff; }
+        .operator { color: #79c0ff; }
 
-        @keyframes slideUpFade {
-            0% {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-
-            100% {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .staggered {
-            opacity: 0;
-            animation: slideUpFade 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-
-        .delay-1 {
-            animation-delay: 0.2s;
-        }
-
-        .delay-2 {
-            animation-delay: 0.4s;
-        }
-
-        .delay-3 {
-            animation-delay: 0.6s;
-        }
-
-        /* Syntax Highlight */
-        .keyword {
-            color: #ff7b72;
-            font-weight: bold;
-        }
-
-        .function {
-            color: #d2a8ff;
-        }
-
-        .string {
-            color: #a5d6ff;
-        }
-
-        .operator {
-            color: #79c0ff;
-        }
-
-        /* SQL Edit Area */
         .sql-edit-area {
-            width: 100%;
-            min-height: 80px;
+            width: 100%; min-height: 80px;
             background: rgba(0, 0, 0, 0.5);
             border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 8px;
-            color: #e2e8f0;
-            padding: 0.8rem;
-            font-family: 'Fira Code', monospace;
-            font-size: 0.85rem;
-            resize: vertical;
-            outline: none;
-            margin-bottom: 0.5rem;
+            border-radius: 8px; color: #e2e8f0;
+            padding: 0.8rem; font-family: 'Fira Code', monospace;
+            font-size: 0.85rem; resize: vertical; outline: none; margin-bottom: 0.5rem;
         }
+        .sql-edit-area:focus { border-color: var(--accent-color); }
 
-        .sql-edit-area:focus {
-            border-color: var(--accent-color);
-        }
+        .btn-rerun { background: rgba(0, 240, 255, 0.15); border: 1px solid rgba(0, 240, 255, 0.4); color: var(--accent-color); padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+        .btn-rerun:hover { background: rgba(0, 240, 255, 0.3); }
 
-        /* Buttons */
-        .btn-rerun {
-            background: rgba(0, 240, 255, 0.15);
-            border: 1px solid rgba(0, 240, 255, 0.4);
-            color: var(--accent-color);
-            padding: 5px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
+        .btn-csv { background: rgba(112, 0, 255, 0.15); border: 1px solid rgba(112, 0, 255, 0.4); color: #c084fc; padding: 5px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; font-weight: 600; transition: all 0.2s; }
+        .btn-csv:hover { background: rgba(112, 0, 255, 0.3); }
 
-        .btn-rerun:hover {
-            background: rgba(0, 240, 255, 0.3);
-        }
-
-        .btn-csv {
-            background: rgba(112, 0, 255, 0.15);
-            border: 1px solid rgba(112, 0, 255, 0.4);
-            color: #c084fc;
-            padding: 5px 14px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 0.82rem;
-            font-weight: 600;
-            transition: all 0.2s;
-        }
-
-        .btn-csv:hover {
-            background: rgba(112, 0, 255, 0.3);
-        }
-
-        /* Query History Panel */
-        .query-history-panel {
-            margin-top: auto;
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            padding-top: 1rem;
-            flex-shrink: 0;
-        }
-
-        .history-title {
-            color: var(--accent-color);
-            font-size: 0.95rem;
-            margin-bottom: 0.6rem;
-        }
-
-        .history-empty {
-            color: var(--text-muted);
-            font-size: 0.8rem;
-        }
-
-        .history-item {
-            padding: 0.5rem 0.6rem;
-            border-radius: 6px;
-            cursor: pointer;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            margin-bottom: 0.4rem;
-            background: rgba(0, 0, 0, 0.2);
-            transition: background 0.2s;
-        }
-
-        .history-item:hover {
-            background: rgba(0, 240, 255, 0.08);
-            border-color: rgba(0, 240, 255, 0.2);
-        }
-
-        .history-time {
-            font-size: 0.7rem;
-            color: var(--text-muted);
-            margin-bottom: 2px;
-        }
-
-        .history-query {
-            font-size: 0.78rem;
-            color: #cbd5e1;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        /* Query History */
+        .query-history-panel { margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.08); padding-top: 1rem; flex-shrink: 0; }
+        .history-title { color: var(--accent-color); font-size: 0.95rem; margin-bottom: 0.6rem; }
+        .history-empty { color: var(--text-muted); font-size: 0.8rem; }
+        .history-item { padding: 0.5rem 0.6rem; border-radius: 6px; cursor: pointer; border: 1px solid rgba(255, 255, 255, 0.05); margin-bottom: 0.4rem; background: rgba(0, 0, 0, 0.2); transition: background 0.2s; }
+        .history-item:hover { background: rgba(0, 240, 255, 0.08); border-color: rgba(0, 240, 255, 0.2); }
+        .history-time { font-size: 0.7rem; color: var(--text-muted); margin-bottom: 2px; }
+        .history-query { font-size: 0.78rem; color: #cbd5e1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
     </style>
 </head>
 
@@ -417,43 +217,42 @@
         <div class="query-history-panel">
             <h3 class="history-title">📜 Sorgu Geçmişi</h3>
             <div id="queryHistoryList">
-                <p class="history-empty">Henüz sorgu yok.</p>
+                <p class="history-empty">Yükleniyor...</p>
             </div>
         </div>
     </div>
 
-    <!-- Main Board -->
+    <!-- Main -->
     <div class="main-wrapper">
         <header class="staggered delay-2">
             <div style="display:flex; align-items:center; gap:15px;">
                 <button id="sidebarToggle"
-                    style="background:transparent; border:none; color:var(--accent-color); font-size:1.5rem; cursor:pointer; padding: 5px;"
+                    style="background:transparent; border:none; color:var(--accent-color); font-size:1.5rem; cursor:pointer; padding:5px;"
                     title="Şema Gezginini Gizle/Göster">☰</button>
                 <div>
                     <h1>AI SQL Agent</h1>
                     <p style="color:var(--text-muted); font-size:0.9rem;">Doğal dille veritabanınızı sorgulayın</p>
                 </div>
             </div>
-            <div>
-                <input type="file" id="dbFileInput" style="display:none;" accept=".sqlite,.db"
-                    onchange="uploadDatabase(event)" />
-                <button class="upload-btn" onclick="document.getElementById('dbFileInput').click()">+ Veritabanı Yükle
-                    (.sqlite)</button>
+            <div class="header-controls">
+                <span id="statusDot" class="status-dot" title="Sistem durumu"></span>
+                <select id="modelSelect" class="model-select" title="LLM Modeli seç">
+                    <option value="llama3">llama3</option>
+                </select>
+                <input type="file" id="dbFileInput" style="display:none;" accept=".sqlite,.db" onchange="uploadDatabase(event)" />
+                <button class="upload-btn" onclick="document.getElementById('dbFileInput').click()">+ Veritabanı Yükle (.sqlite)</button>
             </div>
         </header>
 
-        <!-- Chat Feed -->
         <div class="chat-feed staggered delay-3" id="chatFeed">
             <div style="text-align:center; color: var(--text-muted); margin-top: 50px;" id="emptyState">
                 Lütfen aşağıdaki kutuya sorunuzu yazın.
             </div>
         </div>
 
-        <!-- Input Area -->
         <div class="input-area staggered delay-3">
             <div class="glass-panel">
-                <textarea id="queryInput"
-                    placeholder="Ne öğrenmek istersiniz? (Örnek: Satışları grafikle çıkar)"></textarea>
+                <textarea id="queryInput" placeholder="Ne öğrenmek istersiniz? (Örnek: Satışları grafikle çıkar)"></textarea>
                 <div style="display: flex; justify-content: flex-end;">
                     <button class="btn-generate" onclick="generateSQL()">
                         <span id="btnText">Sorgu Üret</span>
@@ -465,210 +264,274 @@
     </div>
 
     <script>
+        const PAGE_SIZE = 50;
         let chartCounter = 0;
         let chatHistory = [];
-        let queryHistory = [];
-        let resultStore = {};
+        let resultStore = {};  // { id: { columns, data, page } }
 
-        // Sayfa yüklendiğinde şemayı çek
+        // ── Init ──────────────────────────────────────────────────────────────
         document.addEventListener("DOMContentLoaded", () => {
             fetchSchema();
+            checkHealth();
+            loadHistory();
 
-            const toggleBtn = document.getElementById('sidebarToggle');
-            const sidebar = document.querySelector('.sidebar');
-            if (toggleBtn && sidebar) {
-                toggleBtn.addEventListener('click', () => {
-                    sidebar.classList.toggle('collapsed');
-                });
-            }
+            document.getElementById('sidebarToggle').addEventListener('click', () => {
+                document.querySelector('.sidebar').classList.toggle('collapsed');
+            });
+
+            document.getElementById('queryInput').addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); generateSQL(); }
+            });
         });
 
+        // ── Health & Models ───────────────────────────────────────────────────
+        async function checkHealth() {
+            try {
+                const res = await fetch('/api/health');
+                const data = await res.json();
+                const dot = document.getElementById('statusDot');
+                const ok = data.rag && data.ollama;
+                dot.className = 'status-dot ' + (ok ? 'ok' : 'err');
+                dot.title = ok
+                    ? `Sistem hazır | RAG: ✓ | Ollama: ✓ | Modeller: ${data.models.join(', ')}`
+                    : `Sorun var | RAG: ${data.rag ? '✓' : '✗'} | Ollama: ${data.ollama ? '✓' : '✗'}`;
+
+                if (data.models && data.models.length > 0) {
+                    const sel = document.getElementById('modelSelect');
+                    sel.innerHTML = data.models
+                        .map(m => `<option value="${m}">${m}</option>`)
+                        .join('');
+                }
+            } catch (e) {
+                document.getElementById('statusDot').className = 'status-dot err';
+            }
+        }
+
+        // ── Schema ────────────────────────────────────────────────────────────
         async function fetchSchema() {
             try {
                 const res = await fetch('/api/schema');
                 const data = await res.json();
-
-                if (data.schema_json) {
-                    let html = '';
-                    for (const [tableName, columns] of Object.entries(data.schema_json)) {
-                        html += `
-                        <div style="margin-bottom: 1rem; padding: 0.8rem; background: rgba(0,0,0,0.3); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                            <div style="color: var(--accent-color); font-weight: bold; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 8px;">
-                                📁 ${tableName}
-                            </div>
-                            <ul style="list-style: none; margin: 0; padding-left: 1.5rem; color: #a0aec0; font-size: 0.9rem; border-left: 1px solid rgba(255,255,255,0.1); margin-left: 8px;">
-                                ${columns.map(col => `<li style="margin-bottom: 4px; display:flex; align-items:center; gap: 6px;">↳ ${col.includes('(PK)') ? '🔑' : '🔤'} ${col}</li>`).join('')}
-                            </ul>
-                        </div>`;
-                    }
-                    document.getElementById('schemaTree').innerHTML = html;
-                } else if (data.schema_text) {
-                    document.getElementById('schemaTree').innerText = data.schema_text;
-                } else {
-                    document.getElementById('schemaTree').innerText = "Veri bulunamadı.";
+                if (!data.schema_json) { document.getElementById('schemaTree').innerText = "Veri bulunamadı."; return; }
+                let html = '';
+                for (const [tableName, columns] of Object.entries(data.schema_json)) {
+                    html += `
+                    <div style="margin-bottom:1rem;padding:0.8rem;background:rgba(0,0,0,0.3);border-radius:8px;border:1px solid rgba(255,255,255,0.05);">
+                        <div style="color:var(--accent-color);font-weight:bold;margin-bottom:0.5rem;">📁 ${tableName}</div>
+                        <ul style="list-style:none;padding-left:1.5rem;color:#a0aec0;font-size:0.9rem;border-left:1px solid rgba(255,255,255,0.1);margin-left:8px;">
+                            ${columns.map(col => `<li style="margin-bottom:4px;">↳ ${col.includes('(PK)') ? '🔑' : '🔤'} ${col}</li>`).join('')}
+                        </ul>
+                    </div>`;
                 }
+                document.getElementById('schemaTree').innerHTML = html;
             } catch (e) {
                 document.getElementById('schemaTree').innerText = "Bağlantı hatası.";
             }
         }
 
+        // ── History ───────────────────────────────────────────────────────────
+        async function loadHistory() {
+            try {
+                const res = await fetch('/api/history');
+                const data = await res.json();
+                renderQueryHistory(data.history || []);
+            } catch (e) {
+                renderQueryHistory([]);
+            }
+        }
+
+        function renderQueryHistory(items) {
+            const el = document.getElementById('queryHistoryList');
+            if (!el) return;
+            if (!items || items.length === 0) {
+                el.innerHTML = '<p class="history-empty">Henüz sorgu yok.</p>';
+                return;
+            }
+            el.innerHTML = items.slice(0, 15).map(item => `
+                <div class="history-item" onclick="restoreQuery(${JSON.stringify(item.query).replace(/'/g, "\\'")})" title="${(item.sql || '').replace(/"/g, '&quot;')}">
+                    <div class="history-time">${item.time || ''}</div>
+                    <div class="history-query">${item.query.substring(0, 55)}${item.query.length > 55 ? '...' : ''}</div>
+                </div>`).join('');
+        }
+
+        function restoreQuery(query) {
+            document.getElementById('queryInput').value = query;
+            document.getElementById('queryInput').focus();
+        }
+
+        // ── Upload ────────────────────────────────────────────────────────────
         async function uploadDatabase(event) {
             const file = event.target.files[0];
             if (!file) return;
-
             const formData = new FormData();
             formData.append("file", file);
-
-            document.getElementById('schemaTree').innerText = "Yükleniyor ve RAG oluşturuluyor, lütfen bekleyin...\n(Bu işlem LLM hızınıza göre değişir)";
-
+            document.getElementById('schemaTree').innerText = "Yükleniyor ve RAG oluşturuluyor...";
             try {
-                const res = await fetch('/api/upload_db', {
-                    method: "POST",
-                    body: formData
-                });
+                const res = await fetch('/api/upload_db', { method: "POST", body: formData });
                 const data = await res.json();
-                if (data.success) {
-                    alert("Veritabanı başarıyla yüklendi! Şema yenileniyor.");
-                    fetchSchema();
-                } else {
-                    alert("Hata: " + data.error);
-                }
+                if (data.success) { alert("Veritabanı başarıyla yüklendi!"); fetchSchema(); checkHealth(); }
+                else alert("Hata: " + data.error);
             } catch (e) {
                 alert("Yükleme sırasında bağlantı hatası oluştu.");
             }
-            event.target.value = null; // reset
+            event.target.value = null;
         }
 
+        // ── SQL Highlight ─────────────────────────────────────────────────────
         function syntaxHighlight(sql) {
             sql = sql.replace(/(SELECT|FROM|JOIN|ON|WHERE|AND|OR|GROUP BY|ORDER BY|DESC|ASC|LIMIT|AS)\b/gi, '<span class="keyword">$1</span>');
-            sql = sql.replace(/(SUM|COUNT|AVG|MIN|MAX|DATE_TRUNC)\b/gi, '<span class="function">$1</span>');
+            sql = sql.replace(/(SUM|COUNT|AVG|MIN|MAX|strftime)\b/gi, '<span class="function">$1</span>');
             sql = sql.replace(/('.*?')/g, '<span class="string">$1</span>');
             sql = sql.replace(/(=|>=|<=|>|<|-|\*|\+|\/)/g, '<span class="operator">$1</span>');
             return sql;
         }
 
-        function createTableHTML(columns, rows) {
-            if (!rows || rows.length === 0) return "<p>Sonuç bulunamadı.</p>";
-            let html = "<table><tr>";
-            columns.forEach(c => html += `<th>${c}</th>`);
-            html += "</tr>";
-            rows.forEach(r => {
-                html += "<tr>";
-                columns.forEach(c => html += `<td>${r[c]}</td>`);
-                html += "</tr>";
-            });
-            html += "</table>";
-            return html;
+        // ── Pagination ────────────────────────────────────────────────────────
+        function renderPage(id, page) {
+            const store = resultStore[id];
+            if (!store) return;
+            store.page = page;
+            const { columns, data } = store;
+            const total = data.length;
+            const start = page * PAGE_SIZE;
+            const end = Math.min(start + PAGE_SIZE, total);
+            const pageRows = data.slice(start, end);
+
+            let html = '';
+            if (pageRows.length === 0) {
+                html = '<p>Sonuç bulunamadı.</p>';
+            } else {
+                html = '<table><tr>' + columns.map(c => `<th>${c}</th>`).join('') + '</tr>';
+                pageRows.forEach(r => {
+                    html += '<tr>' + columns.map(c => `<td>${r[c] ?? ''}</td>`).join('') + '</tr>';
+                });
+                html += '</table>';
+            }
+
+            const totalPages = Math.ceil(total / PAGE_SIZE);
+            if (total > PAGE_SIZE) {
+                html += `
+                <div class="pagination-controls">
+                    <button class="btn-page" onclick="renderPage(${id}, ${page - 1})" ${page === 0 ? 'disabled' : ''}>← Önceki</button>
+                    <span>${start + 1}–${end} / ${total} satır (Sayfa ${page + 1}/${totalPages})</span>
+                    <button class="btn-page" onclick="renderPage(${id}, ${page + 1})" ${end >= total ? 'disabled' : ''}>Sonraki →</button>
+                </div>`;
+            } else {
+                html += `<div style="margin-top:0.5rem;font-size:0.78rem;color:var(--text-muted);">${total} satır</div>`;
+            }
+
+            document.getElementById(`tableArea_${id}`).innerHTML = html;
         }
 
+        // ── Generate SQL ──────────────────────────────────────────────────────
         async function generateSQL() {
-            const input = document.getElementById('queryInput').value;
-            if (!input.trim()) return;
+            const input = document.getElementById('queryInput').value.trim();
+            if (!input) return;
 
             const feed = document.getElementById('chatFeed');
             const emptyState = document.getElementById('emptyState');
             if (emptyState) emptyState.style.display = 'none';
 
-            // User Bubble
             const userDiv = document.createElement('div');
             userDiv.className = 'bubble user-bubble';
             userDiv.innerText = input;
             feed.appendChild(userDiv);
-
             feed.scrollTop = feed.scrollHeight;
 
-            // UI Loading state
             document.getElementById('btnText').style.display = 'none';
             document.getElementById('loader').style.display = 'block';
             document.getElementById('queryInput').value = '';
+
+            const selectedModel = document.getElementById('modelSelect').value;
 
             try {
                 const response = await fetch('/api/generate_sql', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ query: input, chat_history: chatHistory })
+                    body: JSON.stringify({ query: input, chat_history: chatHistory, model_name: selectedModel })
                 });
 
                 const data = await response.json();
-
-                // AI Bubble
                 const aiDiv = document.createElement('div');
                 aiDiv.className = 'bubble ai-bubble';
                 chartCounter++;
-                const canvasId = `chart_${chartCounter}`;
+                const cid = chartCounter;
+                const canvasId = `chart_${cid}`;
 
                 if (!data.success) {
                     aiDiv.innerHTML = `<strong>Hata:</strong> <pre style="color:#ff5f56">${data.error}</pre>`;
                 } else if (data.is_chat) {
-                    aiDiv.innerHTML = `<div style="font-size:1rem; color:var(--text-main); margin-bottom:0.5rem; padding: 0.5rem;">🤖 <i>${data.message}</i></div>`;
+                    aiDiv.innerHTML = `<div style="font-size:1rem;color:var(--text-main);padding:0.5rem;">🤖 <i>${data.message}</i></div>`;
                 } else {
-                    const iterText = data.attempts > 1 ? `<span style="font-size:0.8rem; color:var(--text-muted)">(${data.attempts} denemede kendi kendini düzelltti)</span>` : '';
-                    const tableHTML = createTableHTML(data.columns, data.data);
-                    const reasoningHTML = data.reasoning ? `<div style="font-size:0.85rem; color:#8b92a5; margin-bottom:1rem; padding: 0.8rem; background: rgba(255,255,255,0.05); border-left: 3px solid #7000ff;">🧠 <i>Düşünce: ${data.reasoning}</i></div>` : '';
-                    const cid = chartCounter;
-                    resultStore[cid] = { columns: data.columns, data: data.data };
+                    const iterText = data.attempts > 1 ? `<span style="font-size:0.8rem;color:var(--text-muted)">(${data.attempts} denemede düzeltti)</span>` : '';
+                    const reasoningHTML = data.reasoning
+                        ? `<div style="font-size:0.85rem;color:#8b92a5;margin-bottom:1rem;padding:0.8rem;background:rgba(255,255,255,0.05);border-left:3px solid #7000ff;">🧠 <i>${data.reasoning}</i></div>`
+                        : '';
+
+                    resultStore[cid] = { columns: data.columns, data: data.data, page: 0 };
+
                     aiDiv.innerHTML = `
                         ${reasoningHTML}
-                        <div style="margin-bottom:0.5rem; color:var(--accent-color); display:flex; justify-content:space-between; align-items:center;">
+                        <div style="margin-bottom:0.5rem;color:var(--accent-color);display:flex;justify-content:space-between;align-items:center;">
                             <span><strong>Üretilen SQL</strong> ${iterText}</span>
                         </div>
                         <textarea id="sqlEdit_${cid}" class="sql-edit-area">${data.sql}</textarea>
-                        <div style="display:flex; gap:8px; margin-bottom:1rem; justify-content:flex-end;">
+                        <div style="display:flex;gap:8px;margin-bottom:1rem;justify-content:flex-end;">
                             <button class="btn-rerun" onclick="runEditedSQL(${cid})">&#9654; Yeniden Çalıştır</button>
                         </div>
-                        <hr style="border-color: rgba(255,255,255,0.05); margin: 1rem 0;" />
-                        <div style="display:flex; justify-content:flex-end; margin-bottom:0.5rem;">
+                        <hr style="border-color:rgba(255,255,255,0.05);margin:1rem 0;" />
+                        <div style="display:flex;justify-content:flex-end;margin-bottom:0.5rem;">
                             <button class="btn-csv" onclick="downloadCSV(${cid})">&#8595; CSV İndir</button>
                         </div>
-                        <div id="tableArea_${cid}" style="overflow-x:auto;">${tableHTML}</div>
-                        <div style="width:100%; height:300px; margin-top:20px; display:flex; justify-content:center;">
+                        <div id="tableArea_${cid}" style="overflow-x:auto;"></div>
+                        <div style="width:100%;height:300px;margin-top:20px;display:flex;justify-content:center;">
                             <canvas id="${canvasId}" style="display:none;"></canvas>
                         </div>
                     `;
+
+                    // Grafiği ve tabloyu sonra render et
+                    feed.appendChild(aiDiv);
+                    renderPage(cid, 0);
+
+                    if (data.columns && data.columns.length >= 2) {
+                        const type = data.chart_type || "table";
+                        if (type === "bar" || type === "pie" || type === "line") {
+                            const cvs = document.getElementById(canvasId);
+                            cvs.style.display = 'block';
+                            const labelCol = data.columns[0];
+                            const dataCol = data.columns[1];
+                            const labels = data.data.map(r => r[labelCol]);
+                            const chartData = data.data.map(r => parseFloat(r[dataCol]));
+                            new Chart(cvs.getContext('2d'), {
+                                type: type,
+                                data: {
+                                    labels,
+                                    datasets: [{
+                                        label: dataCol,
+                                        data: chartData,
+                                        backgroundColor: ['rgba(0,240,255,0.6)','rgba(112,0,255,0.6)','rgba(255,99,132,0.6)','rgba(255,206,86,0.6)','rgba(75,192,192,0.6)'],
+                                        borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1
+                                    }]
+                                },
+                                options: {
+                                    responsive: true, maintainAspectRatio: false, color: 'white',
+                                    plugins: { legend: { labels: { color: 'white' } } },
+                                    scales: type === 'pie' ? {} : { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
+                                }
+                            });
+                        }
+                    }
+
+                    chatHistory.push({ role: 'user', content: input });
+                    chatHistory.push({ role: 'assistant', content: data.sql || '' });
+                    loadHistory();  // geçmişi yenile (backend'den)
+                    feed.scrollTop = feed.scrollHeight;
+                    return;
                 }
 
                 feed.appendChild(aiDiv);
-                feed.scrollTop = feed.scrollHeight;
-
-                // Hafıza ve geçmiş güncelle
                 chatHistory.push({ role: 'user', content: input });
                 chatHistory.push({ role: 'assistant', content: data.sql || data.message || '' });
-                if (!data.is_chat && data.success && data.sql) {
-                    queryHistory.unshift({ query: input, sql: data.sql, time: new Date().toLocaleTimeString('tr-TR') });
-                    renderQueryHistory();
-                }
-
-                // Render Chart if success
-                if (data.success && data.columns && data.columns.length >= 2) {
-                    const type = data.chart_type || "table";
-                    if (type === "bar" || type === "pie" || type === "line") {
-                        const cvs = document.getElementById(canvasId);
-                        cvs.style.display = 'block';
-                        const ctx = cvs.getContext('2d');
-
-                        const labelCol = data.columns[0];
-                        const dataCol = data.columns[1];
-                        const labels = data.data.map(r => r[labelCol]);
-                        const chartData = data.data.map(r => parseFloat(r[dataCol]));
-
-                        new Chart(ctx, {
-                            type: type,
-                            data: {
-                                labels: labels,
-                                datasets: [{
-                                    label: dataCol,
-                                    data: chartData,
-                                    backgroundColor: ['rgba(0, 240, 255, 0.6)', 'rgba(112, 0, 255, 0.6)', 'rgba(255, 99, 132, 0.6)', 'rgba(255, 206, 86, 0.6)', 'rgba(75, 192, 192, 0.6)'],
-                                    borderColor: 'rgba(255,255,255,0.2)', borderWidth: 1
-                                }]
-                            },
-                            options: {
-                                responsive: true, maintainAspectRatio: false, color: 'white', plugins: { legend: { labels: { color: 'white' } } },
-                                scales: type === 'pie' ? {} : { x: { ticks: { color: 'white' } }, y: { ticks: { color: 'white' } } }
-                            }
-                        });
-                    }
-                }
 
             } catch (error) {
                 const aiDiv = document.createElement('div');
@@ -682,21 +545,27 @@
             }
         }
 
-        function downloadCSV(id) {
+        // ── CSV Export (backend) ──────────────────────────────────────────────
+        async function downloadCSV(id) {
             const store = resultStore[id];
             if (!store) return;
-            const { columns, data } = store;
-            let csv = columns.join(',') + '\n';
-            data.forEach(row => {
-                csv += columns.map(c => `"${String(row[c] ?? '').replace(/"/g, '""')}"`).join(',') + '\n';
-            });
-            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a');
-            a.href = URL.createObjectURL(blob);
-            a.download = `sorgu_${id}.csv`;
-            a.click();
+            try {
+                const res = await fetch('/api/export_csv', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ columns: store.columns, data: store.data, filename: `sorgu_${id}` })
+                });
+                const blob = await res.blob();
+                const a = document.createElement('a');
+                a.href = URL.createObjectURL(blob);
+                a.download = `sorgu_${id}.csv`;
+                a.click();
+            } catch (e) {
+                alert("CSV indirilemedi: " + e.message);
+            }
         }
 
+        // ── Run Edited SQL ────────────────────────────────────────────────────
         async function runEditedSQL(id) {
             const sqlArea = document.getElementById(`sqlEdit_${id}`);
             const tableArea = document.getElementById(`tableArea_${id}`);
@@ -710,35 +579,13 @@
                 });
                 const data = await res.json();
                 if (data.success) {
-                    resultStore[id] = { columns: data.columns, data: data.data };
-                    tableArea.innerHTML = createTableHTML(data.columns, data.data);
+                    resultStore[id] = { columns: data.columns, data: data.data, page: 0 };
+                    renderPage(id, 0);
                 } else {
                     tableArea.innerHTML = `<p style="color:#ff5f56">Hata: ${data.error}</p>`;
                 }
             } catch (e) {
                 tableArea.innerHTML = `<p style="color:#ff5f56">Bağlantı hatası: ${e.message}</p>`;
-            }
-        }
-
-        function renderQueryHistory() {
-            const el = document.getElementById('queryHistoryList');
-            if (!el) return;
-            if (queryHistory.length === 0) {
-                el.innerHTML = '<p class="history-empty">Henüz sorgu yok.</p>';
-                return;
-            }
-            el.innerHTML = queryHistory.slice(0, 10).map((item, i) => `
-                <div class="history-item" onclick="restoreQuery(${i})" title="${item.sql}">
-                    <div class="history-time">${item.time}</div>
-                    <div class="history-query">${item.query.substring(0, 55)}${item.query.length > 55 ? '...' : ''}</div>
-                </div>`).join('');
-        }
-
-        function restoreQuery(index) {
-            const item = queryHistory[index];
-            if (item) {
-                document.getElementById('queryInput').value = item.query;
-                document.getElementById('queryInput').focus();
             }
         }
     </script>

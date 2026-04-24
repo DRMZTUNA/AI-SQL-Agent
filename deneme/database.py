@@ -6,6 +6,42 @@ import random
 
 DEFAULT_DB_NAME = "ecommerce.sqlite"
 CURRENT_DB_PATH = DEFAULT_DB_NAME
+HISTORY_DB_PATH = "query_history.sqlite"
+
+
+def init_history_db():
+    conn = sqlite3.connect(HISTORY_DB_PATH)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS history (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            query TEXT NOT NULL,
+            sql TEXT,
+            chart_type TEXT,
+            created_at TEXT DEFAULT (strftime('%Y-%m-%d %H:%M:%S', 'now', 'localtime'))
+        )
+    """)
+    conn.commit()
+    conn.close()
+
+
+def save_to_history(query: str, sql: str, chart_type: str = "table"):
+    conn = sqlite3.connect(HISTORY_DB_PATH)
+    conn.execute(
+        "INSERT INTO history (query, sql, chart_type) VALUES (?, ?, ?)",
+        (query, sql, chart_type)
+    )
+    conn.commit()
+    conn.close()
+
+
+def get_history(limit: int = 20) -> list:
+    conn = sqlite3.connect(HISTORY_DB_PATH)
+    rows = conn.execute(
+        "SELECT id, query, sql, chart_type, created_at FROM history ORDER BY id DESC LIMIT ?",
+        (limit,)
+    ).fetchall()
+    conn.close()
+    return [{"id": r[0], "query": r[1], "sql": r[2], "chart_type": r[3], "time": r[4]} for r in rows]
 
 def get_current_db_url():
     return f"sqlite:///{CURRENT_DB_PATH}"
@@ -57,6 +93,8 @@ def setup_mock_database():
         sales_data.append({
             'id': i,
             'p_id': p_id,
+            'product_id': product_id,
+            'qty': qty,
             'amount': amount,
             'date': sale_date.strftime('%Y-%m-%d')
         })

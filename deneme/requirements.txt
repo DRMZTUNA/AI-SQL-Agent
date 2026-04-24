@@ -7,3 +7,5 @@ chromadb
 sqlalchemy
 pandas
 python-multipart
+sqlparse
+httpx
