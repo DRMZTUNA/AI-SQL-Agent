@@ -68,6 +68,37 @@ veya
 """
 
 
+def _needs_validation(sql: str, data: list, question: str) -> tuple:
+    """
+    Validator'ın tetiklenmesi gerekip gerekmediğini kural tabanlı kontrol eder.
+    Riskli bir durum varsa (True, sebep) döner; yoksa (False, "") döner.
+    Bu sayede validator yalnızca şüpheli sonuçlarda devreye girer.
+    """
+    sql_upper = sql.upper()
+    row_count = len(data)
+
+    # 1. LIMIT N var ama daha az satır döndü
+    import re
+    limit_match = re.search(r'\bLIMIT\s+(\d+)', sql_upper)
+    if limit_match:
+        expected = int(limit_match.group(1))
+        if row_count < expected:
+            return True, f"LIMIT {expected} istendi ama yalnızca {row_count} satır döndü."
+
+    # 2. Sonuç tamamen boş
+    if row_count == 0:
+        return True, "Sorgu hiç sonuç döndürmedi."
+
+    # 3. Kullanıcı belirli bir sayı belirtti ama eşleşmiyor
+    number_in_question = re.search(r'\b(\d+)\b', question)
+    if number_in_question and limit_match is None:
+        expected = int(number_in_question.group(1))
+        if expected > 1 and row_count < expected:
+            return True, f"Kullanıcı {expected} sonuç bekledi ama {row_count} geldi (LIMIT yok)."
+
+    return False, ""
+
+
 async def _validate_result(question: str, sql: str, data: list, llm, loop) -> tuple:
     """
     LLM'e sonucu denetletir. (is_valid: bool, issue: str) döner.
@@ -149,8 +180,16 @@ async def generate_sql_and_chart(query: str, vectorstore, llm_model="llama3", ma
                 )
                 continue
 
-            # SQL çalıştı — şimdi sonucu denetle
-            is_valid, issue = await _validate_result(query, sql, result["data"], llm, loop)
+            # SQL çalıştı — önce kural tabanlı risk kontrolü yap
+            risky, risk_reason = _needs_validation(sql, result["data"], query)
+            if risky:
+                # Riskli durum → LLM validator'ı devreye gir
+                logger.info(f"Validator tetiklendi: {risk_reason}")
+                is_valid, issue = await _validate_result(query, sql, result["data"], llm, loop)
+            else:
+                # Düşük riskli → doğrudan kabul et, ekstra LLM çağrısı yok
+                logger.info("Validator atlandı (düşük risk).")
+                is_valid, issue = True, ""
 
             if not is_valid:
                 last_error = f"Sonuç doğrulama başarısız: {issue}"

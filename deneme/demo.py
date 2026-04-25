@@ -1,47 +1,96 @@
-from prompts import SQL_AGENT_SYSTEM_PROMPT
-
-# Örnek bir veritabanı şeması (Örneğin bir e-ticaret veya depo sistemi olabilir)
-DB_SCHEMA_MOCK = """
-Tablo: personnel (Personel)
-- id (INT, Primary Key)
-- name (VARCHAR)
-- department (VARCHAR)
-
-Tablo: sales (Satışlar)
-- id (INT, Primary Key)
-- p_id (INT, Foreign Key -> personnel.id)
-- amount (DECIMAL)
-- date (DATE)
-
-Tablo: products (Ürünler)
-- id (INT, Primary Key)
-- product_name (VARCHAR)
-- stock_quantity (INT)
-- price (DECIMAL)
 """
+CLI demo — web arayüzü olmadan agent'ı terminalden test eder.
+Kullanım: python demo.py
+Opsiyonel: python demo.py "sorunuzu buraya yazın"
+"""
+import asyncio
+import sys
+import json
+from database import setup_mock_database, set_current_db_path
+from rag_schema import initialize_schema_rag
+from agent import generate_sql_and_chart
 
-def generate_agent_prompt(schema_str: str) -> str:
-    # Sisteme gönderilecek olan nihai promptu şema ile birleştirir.
-    return SQL_AGENT_SYSTEM_PROMPT.format(database_schema=schema_str)
+DEFAULT_MODEL = "llama3"
+
+TEST_QUERIES = [
+    "En çok satış yapan 5 ürün hangileri?",
+    "Departman bazında toplam satış miktarı nedir?",
+    "Geçen ay kaç satış yapıldı?",
+]
+
+
+def print_separator():
+    print("\n" + "─" * 60 + "\n")
+
+
+async def run_query(query: str, vectorstore, model: str):
+    print(f"❓ Sorgu   : {query}")
+    print(f"🤖 Model   : {model}")
+    print("⏳ İşleniyor...\n")
+
+    result = await generate_sql_and_chart(
+        query=query,
+        vectorstore=vectorstore,
+        llm_model=model,
+        max_retries=5,
+        chat_history=[],
+    )
+
+    if not result.get("success"):
+        print(f"❌ Hata    : {result.get('error')}")
+        return
+
+    if result.get("is_chat"):
+        print(f"💬 Yanıt   : {result.get('message')}")
+        return
+
+    print(f"✅ Başarılı  ({result.get('attempts', 1)} deneme)")
+    print(f"📝 SQL      :\n   {result['sql']}\n")
+    print(f"📊 Grafik   : {result.get('chart_type', 'table')}")
+    print(f"📋 Sütunlar : {result['columns']}")
+    print(f"📦 Sonuç    : {len(result['data'])} satır")
+
+    for i, row in enumerate(result["data"][:10]):
+        print(f"   {i+1:>2}. {row}")
+    if len(result["data"]) > 10:
+        print(f"   ... ve {len(result['data']) - 10} satır daha")
+
+
+async def main():
+    print_separator()
+    print("🚀 AI SQL Agent — CLI Demo")
+    print_separator()
+
+    print("📂 Veritabanı hazırlanıyor...")
+    setup_mock_database()
+    set_current_db_path("ecommerce.sqlite")
+
+    print("🔗 RAG ve Ollama bağlantısı kuruluyor...")
+    try:
+        vectorstore = initialize_schema_rag(model_name=DEFAULT_MODEL)
+        print("✅ RAG hazır.\n")
+    except Exception as e:
+        print(f"❌ Ollama bağlantısı kurulamadı: {e}")
+        print("   Çözüm: 'ollama serve' komutunu çalıştırın.")
+        sys.exit(1)
+
+    # Komut satırından sorgu verilmişse onu çalıştır
+    if len(sys.argv) > 1:
+        query = " ".join(sys.argv[1:])
+        print_separator()
+        await run_query(query, vectorstore, DEFAULT_MODEL)
+        print_separator()
+        return
+
+    # Yoksa hazır test sorgularını sırayla çalıştır
+    for query in TEST_QUERIES:
+        print_separator()
+        await run_query(query, vectorstore, DEFAULT_MODEL)
+
+    print_separator()
+    print("✅ Demo tamamlandı.")
+    print_separator()
+
 
 if __name__ == "__main__":
-    print("-" * 50)
-    print("[SYSTEM] SQL AGENT SYSTEM PROMPT OLUSTURULUYOR...")
-    print("-" * 50)
-    
-    # 1. Aşama: Şema enjekte edilmiş System Prompt'u oluştur
-    final_system_prompt = generate_agent_prompt(DB_SCHEMA_MOCK)
-    print("Enjekte Edilmis System Prompt:\n")
-    print(final_system_prompt)
-    print("-" * 50)
-    
-    # 2. Aşama: Kullanıcı Senaryosu
-    kullanici_sorusu = "Geçen ay en çok satış yapan 5 personeli getir."
-    print(f"[USER] Kullanici Sorusu: {kullanici_sorusu}\n")
-    
-    # Simülasyon: Normalde bu noktada bir LLM'e final_system_prompt ve kullanici_sorusu gönderilir
-    # İşte LLM'in (bizim agent'ın) döneceği varsayılan çıktı:
-    agent_yaniti = "SELECT p.name AS Personel_Adi, SUM(s.amount) AS Toplam_Satis FROM sales s JOIN personnel p ON s.p_id = p.id WHERE s.date >= DATE_TRUNC('month', CURRENT_DATE - INTERVAL '1 month') AND s.date < DATE_TRUNC('month', CURRENT_DATE) GROUP BY p.name ORDER BY Toplam_Satis DESC LIMIT 5;"
-    
-    print(f"[AGENT] SQL Agent Yaniti (Sadece SQL):\n{agent_yaniti}")
-    print("-" * 50)
+    asyncio.run(main())
