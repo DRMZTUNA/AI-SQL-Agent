@@ -12,7 +12,7 @@ import sqlparse
 
 from database import (
     setup_mock_database, set_current_db_path, get_clean_schema_json,
-    execute_query, init_history_db, save_to_history, get_history
+    execute_query, init_history_db, save_to_history, get_history, get_cached_query
 )
 from rag_schema import initialize_schema_rag
 from agent import generate_sql_and_chart
@@ -49,6 +49,7 @@ class QueryRequest(BaseModel):
     query: str
     chat_history: Optional[List[Dict[str, Any]]] = []
     model_name: str = "llama3"
+    use_cache: bool = True
 
 
 class SqlRunRequest(BaseModel):
@@ -137,6 +138,22 @@ async def generate_sql(request: QueryRequest):
             detail="RAG servisi baslatılamadı. Ollama calısmıyor. Lutfen 'ollama serve' komutunu calistirin ve sunucuyu yeniden baslatın."
         )
 
+    # Önbellekten kontrol et
+    if request.use_cache:
+        cached = get_cached_query(request.query)
+        if cached:
+            result = execute_query(cached["sql"])
+            if result["success"]:
+                return {
+                    **result,
+                    "sql": cached["sql"],
+                    "reasoning": "Bu sonuç önbellekten döndürüldü (son 24 saat içinde aynı sorgu çalıştırıldı).",
+                    "chart_type": cached["chart_type"],
+                    "success": True,
+                    "attempts": 0,
+                    "from_cache": True,
+                }
+
     try:
         result = await generate_sql_and_chart(
             request.query,
@@ -147,6 +164,8 @@ async def generate_sql(request: QueryRequest):
         )
         if result.get("success") and not result.get("is_chat") and result.get("sql"):
             save_to_history(request.query, result["sql"], result.get("chart_type", "table"))
+        if isinstance(result, dict):
+            result["from_cache"] = False
         return result
     except Exception as e:
         return {"success": False, "error": str(e)}

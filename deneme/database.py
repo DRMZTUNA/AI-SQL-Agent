@@ -43,6 +43,23 @@ def get_history(limit: int = 20) -> list:
     conn.close()
     return [{"id": r[0], "query": r[1], "sql": r[2], "chart_type": r[3], "time": r[4]} for r in rows]
 
+
+CACHE_TTL_HOURS = 24
+
+def get_cached_query(query: str, ttl_hours: int = CACHE_TTL_HOURS):
+    """Aynı sorgu TTL süresi içinde daha önce çalıştırıldıysa SQL+chart_type döndürür, yoksa None."""
+    from datetime import datetime, timedelta
+    cutoff = (datetime.now() - timedelta(hours=ttl_hours)).strftime('%Y-%m-%d %H:%M:%S')
+    conn = sqlite3.connect(HISTORY_DB_PATH)
+    row = conn.execute(
+        "SELECT sql, chart_type FROM history WHERE query = ? AND created_at >= ? ORDER BY id DESC LIMIT 1",
+        (query, cutoff)
+    ).fetchone()
+    conn.close()
+    if row and row[0]:
+        return {"sql": row[0], "chart_type": row[1]}
+    return None
+
 def get_current_db_url():
     return f"sqlite:///{CURRENT_DB_PATH}"
 
